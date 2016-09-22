@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+        
+        <style>
+            body{
+                background-color:paleturquoise;
+                text-align:center;
+            }
+        
+            body h2{
+                margin-top:100px;
+            }
+        
+            button{
+                border:0;
+                width: 150px;
+                height: 35px;
+                background-color: orangered;
+                color: white;
+                font-size: 16px;
+                border-radius: 6px;
+            }
+        </style>
+        
+    </head>
+    
+    <body>
+        <h2>JS调用Swift中的方法</h2>
+        <button id="btn">访问Swift相册</button>
+        <button id="btn1">调用Swift提示窗</button>
+        <p></p>
+    </body>
+    
+    <script>
+        // 这段代码是固定的，必须要放到js中
+        function setupWebViewJavascriptBridge(callback) {
+            if (window.WebViewJavascriptBridge) { return callback(WebViewJavascriptBridge); }
+            if (window.WVJBCallbacks) { return window.WVJBCallbacks.push(callback); }
+            window.WVJBCallbacks = [callback];
+            var WVJBIframe = document.createElement('iframe');
+            WVJBIframe.style.display = 'none';
+            WVJBIframe.src = 'wvjbscheme://__BRIDGE_LOADED__';
+            document.documentElement.appendChild(WVJBIframe);
+            setTimeout(function() { document.documentElement.removeChild(WVJBIframe) }, 0)
+        }
+    
+    // 与Swift交互的所有JS方法都要在这里注册,才能让Swift和JS之间相互调用
+    setupWebViewJavascriptBridge(function(bridge) {
+           
+        // Swift 调 JS
+        /* JS给Swift提供公开的API, 在Swift中可以手动调用此API, 并且可以接收Swift中传过来的参数,同时可回调Swift */
+        // 获取用户信息
+        bridge.registerHandler('getUserInfo', function(data, responseCallback) {
+<!--            console.log("Swift中传递过来的参数:", data);-->
+            // 把处理好的结果返回给Swift
+            responseCallback({"userID" : "LaoLao520", "userName" : "CoderZYWang", "age" : "18", "otherName":"你大尧哥"})
+        });
+
+        //  弹窗
+        bridge.registerHandler('alertMessage', function(data, responseCallback) {
+            alert(data);
+        });
+
+        // 插入一张图片
+        bridge.registerHandler('insertImgToWebView', function(data, responseCallback) {                        var img = document.createElement('img');
+            img.src = data.url;
+            img.width = 200;
+            document.body.appendChild(img);
+        });
+                                 
+        //  动态跳转到 京东商城/初始界面
+        bridge.registerHandler('pushToNewWebView', function(data, responseCallback) {
+            window.location.href = data.url;
+
+        });
+                                 
+        // 动态跳转到 原始主界面
+        bridge.registerHandler('popMainView', function(data, responseCallback) {
+            window.location.href = "";
+                            
+        });
+                                 
+        // JS 调 Swift
+        /* Swift给JS提供公开的API, 在JS中可以手动调用此API, 并且可以接收Swift中传过来的参数,同时可回调Swift */
+        // 调用Swift API 打开相册
+        document.getElementById('btn').onclick = function () {
+            bridge.callHandler('openCamera', {'count':'10张'}, function responseCallback(responseData) {
+                console.log("Swift中返回的参数:", responseData)
+            });
+        };
+
+        // 调用Swift API 访问底部弹窗 alert
+        document.getElementById('btn1').onclick = function () {
+            bridge.callHandler('showSheet', '', function responseCallback(responseData) {
+                console.log("Swift中返回的参数:", responseData)
+            });
+        };
+    })
+
+    </script>
+    
+</html>
