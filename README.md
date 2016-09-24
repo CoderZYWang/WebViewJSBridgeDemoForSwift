@@ -1,5 +1,5 @@
 # WebViewJSBridgeDemoForSwift
-#### 在项目中OC和Javascript如何相互调用，集成多个Demo。快速上手WebViewJavascriptBridge框架。
+#### 在项目中Swift和Javascript如何相互调用，集成多个Demo。快速上手WebViewJavascriptBridge框架。
 
 <br>
 ## 如何使用
